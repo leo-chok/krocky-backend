@@ -1,7 +1,19 @@
 const express = require("express");
 const router = express.Router();
 const Monster = require("../models/monster");
-const User = require("../models/user")
+const User = require("../models/user");
+
+// Route pour récupérer les informations du monstre par son _id
+router.get("/:id", (req, res) => {
+  const id = req.params.id;
+  Monster.findById(id).then((data) => {
+    if (data) {
+      res.json({ result: true, monsterData: data });
+    } else {
+      res.json({ result: false, error: "Monster not found" });
+    }
+  });
+});
 
 // Route pour créer un monstre (adoption)
 router.post("/adopt", async (req, res) => {
@@ -26,11 +38,13 @@ router.post("/adopt", async (req, res) => {
 
     await newMonster.save();
 
-     // Ajoute l'ID du monstre à la liste des monstres de l'utilisateur
+    // Ajoute l'ID du monstre à la liste des monstres de l'utilisateur
     user.monsters.push(newMonster._id);
     await user.save();
 
-    res.status(201).json({ message: "Monstre adopté avec succès !", monster: newMonster });
+    res
+      .status(201)
+      .json({ message: "Monstre adopté avec succès !", monster: newMonster });
   } catch (error) {
     res.status(500).json({ message: "Erreur serveur", error });
   }
